@@ -11,18 +11,15 @@
 
 #include "oven_monitor.hpp"
 
-pthread_mutex_t oven_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t data_lock = PTHREAD_MUTEX_INITIALIZER;
+using namespace std;
 
 int main (int argc, const char *argv[]){
   if(argc != 2)
     std::cout <<  "The only execution argument is the number "
       << "of rounds" << std::endl;
 
-  int counter = atoi(argv[1]);
-  pthread_mutex_t oven_lock = PTHREAD_MUTEX_INITIALIZER;
-  pthread_mutex_t data_lock = PTHREAD_MUTEX_INITIALIZER;
-  OvenMonitor monitor = OvenMonitor(counter, &oven_lock, &data_lock);
+  int rounds = atoi(argv[1]);
+  OvenMonitor monitor = OvenMonitor(rounds);
 
   monitor.start();
 

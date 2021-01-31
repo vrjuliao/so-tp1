@@ -11,17 +11,17 @@ $(info SOURCES = $(SOURCES))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 $(info OBJECTS = $(OBJECTS))
 
-CFLAGS := -std=c++11
+CFLAGS := -std=c++11 -pthread
 INC := -I include/
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-  @mkdir -p $(@D)
-  $(CC) $(CFLAGS) $(INC) -c $< -o $@
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 all: clean main
 
 clean:
-  $(RM) -rf $(BINDIR) $(OBJDIR) *.gcda *.gcno main main.dSYM
+	$(RM) -rf $(BINDIR) $(OBJDIR) *.gcda *.gcno main main.dSYM
 
 main: $(OBJECTS)
-  $(CC) $(CFLAGS) $(INC) $(MAIN) $^ -o main
+	$(CC) $(CFLAGS) $(INC) $(MAIN) $^ -o main

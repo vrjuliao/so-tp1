@@ -8,45 +8,63 @@
 #include <functional>
 #include <pthread.h>
 
-#include "person.hpp"
+using namespace std;
+class OvenMonitor;
 
-static const std::map<std::string, std::string> SO_TP1_COUPLES = 
-  {{"Sheldon", "Amy"}, {"Howard", "Bernadette"}, {"Leonard", "Penny"},
-  {"Amy", "Sheldon"}, {"Bernadette", "Howard"}, {"Penny", "Leonard"},
-  {"Kripke", ""},{"Stuart", ""}};
+// Instances
+static const map<string, string> SO_TP1_COUPLES = {
+  {"Sheldon",     "Amy"}, 
+  {"Howard",      "Bernadette"},
+  {"Leonard",     "Penny"},
+  {"Amy",         "Sheldon"},
+  {"Bernadette",  "Howard"},
+  {"Penny",       "Leonard"},
+  {"Kripke",      ""},
+  {"Stuart",      ""}};
 
-static const std::vector<std::string> SO_TP1_NAMES = {"Sheldon", "Howard", "Leonard",
+static const vector<string> SO_TP1_NAMES = {"Sheldon", "Howard", "Leonard",
   "Stuart", "Kripke", "Amy", "Penny", "Bernadette"};
+
+struct Person {
+  std::string name;
+  int round;
+  pthread_cond_t condition;
+  OvenMonitor *monitor;
+};
 
 class OvenMonitor {
 private:
-  pthread_mutex_t *mOven_lock, *mData_lock;
-  std::list<Person> mWaitign_list;
-  std::map<std::string, Person> mPersons;
-  int mRounds;
-
-  std::vector<std::string> get_instance();
-
-  // thread function
-  // check who allow the semaphore of next oven access
-  void *monitor();
+  pthread_mutex_t *lock;
+  list<Person*> waiting_list;
+  map<string, Person*> people;
+  vector<pthread_t> thread_ids;
+  pthread_t raj_thread;
 
   // thread function to prevent deadlocks
-  void *raj(); 
+  static void *raj(void *args); 
+  bool in_deadlock();
+  int number_of_couples();
+  bool is_in_list(string name);
+  void sort_waiting_list();
+  int index_in_wl(string name);
+  void add_in_order(string p_name1, int p_index1, string p_name2, int p_index2);
+  static void *run(void *args);
+  bool valid_deadlock();
 
 public:
-  // dispara a funcao monitor() como uma thread
-  // dispara a funcao raj() como uma thread
-  OvenMonitor(int oven_access, pthread_mutex_t *oven_lock, pthread_mutex_t *data_lock);  
+  OvenMonitor(int rounds);
+  ~OvenMonitor();
 
   static int my_rand(int start, int end);
-  Person get_person(std::string name);
-  void wait(std::string name, pthread_cond_t *cond);
-  void cook(std::string name);
+  static long my_random_seed();
+  int waiting_list_size();
+  void raise_random_person();
+  void wait(Person *p);
   void free_oven();
-  bool can_use(std::string name);
   void start();
   void end();
-
+  void push_sorted(Person *p);
+  void mutex_lock();
+  void mutex_unlock();
 };
 #endif
