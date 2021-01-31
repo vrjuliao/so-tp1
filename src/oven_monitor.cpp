@@ -80,7 +80,9 @@ void OvenMonitor::start(){
   random_shuffle(instance_order.begin(), instance_order.end());
   int size = SO_TP1_NAMES.size();
   for(int i=0; i<size; i++){
-    pthread_create(&this->thread_ids[i], NULL, &OvenMonitor::run, (void *) this->people[instance_order[i]]);
+    int id =pthread_create(&this->thread_ids[i], NULL, &OvenMonitor::run, (void *) this->people[instance_order[i]]);
+    if(id)
+      cerr << "Thread creating error. CODE: " << id << endl;
   }
   pthread_create(&this->raj_thread, NULL, &OvenMonitor::raj, (void*) this);
 }
